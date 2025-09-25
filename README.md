@@ -1,4 +1,4 @@
-# Input Perturbation Sensitivity Hypothesis: When LLM Task Performance Falloff Reveals Memorization
+# Memorization or Interpolation? Detecting LLM Memorization through Input Perturbation Analysis
 
 ## Pearl default
 
