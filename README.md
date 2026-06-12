@@ -1,8 +1,6 @@
 # PEARL — Perturbation-based Evaluation and Analysis of Representation Latency
 
-**PEARL** is a black-box memorization detection framework for large language models. It identifies memorized training instances by measuring how stable a model's outputs are under small input perturbations — no logit access, no training data, no auxiliary model required.
-
-The core hypothesis: a model that has memorized a training instance will reproduce a similar output even when its input is slightly modified, whereas a model that has merely generalized will not.
+**PEARL** is a black-box memorization detection framework for large language models. It identifies memorized training instances by measuring how instable a model's outputs are under small input perturbations — no logit access, no training data, no auxiliary model required.
 
 ---
 
@@ -13,7 +11,7 @@ For every sample:
 1. **Build a neighborhood** — generate up to *K* modified inputs per input-similarity bucket (`[0.90-1.00]`, `[0.80-0.90]`, …, `[0.50-0.60]`), measured by char-n-gram cosine similarity.
 2. **Generate outputs** — run the model (greedy, deterministic) on the original and all modified inputs.
 3. **Aggregate output similarity** — apply an aggregation operator *A* (mean, min, median, quantile, neg-variance) over the cosine similarity scores between original and perturbed outputs.
-4. **Classify** — instances with anomalously high (or low, depending on domain) output stability are flagged as memorized using a Youden-optimal threshold.
+4. **Classify** — instances with anomalously low (or low, depending on domain) output stability are flagged as memorized using a Youden-optimal threshold.
 
 Three MIA scores (Loss, Min-K%, Neighbourhood Attack) are computed alongside as gray-box upper-bound references.
 
