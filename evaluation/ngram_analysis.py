@@ -17,8 +17,8 @@ Scores computed per sample:
 For each n in {5, 7, 13}:
   - coverage           : fraction of samples that have >= n output words
   - μ(S_E), μ(S_G)     : mean score on members / non-members
-  - γ = μ(S_E) − μ(S_G): memorization gap (positive = members score higher)
-  - AUC                : ROC-AUC (higher score → more memorized)
+  - γ = μ(S_E) − μ(S_G): memorization gap
+  - AUC                : ROC-AUC
 
 Outputs:
   analysis/results/ngram_per_epoch.csv

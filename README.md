@@ -292,8 +292,6 @@ python evaluation/generate_rq8_code_figures.py
 python evaluation/generate_boxplot_task_operator.py --epoch 10
 ```
 
-All figures are written to `paper/_assets/`.
-
 ---
 
 ## Output files
