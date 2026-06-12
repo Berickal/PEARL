@@ -1,0 +1,23 @@
+# ── Core ──────────────────────────────────────────────────────
+torch>=2.0.0
+transformers>=4.40.0
+datasets>=2.18.0
+pyyaml>=6.0
+numpy>=1.24.0
+
+# ── Similarity metrics ─────────────────────────────────────────
+scikit-learn>=1.3.0      # cosine similarity (TF-IDF, char n-gram)
+nltk>=3.8.0              # BLEU similarity fallback
+
+# ── Reporting & visualisation ──────────────────────────────────
+matplotlib>=3.7.0        # similarity_curve.png plot
+
+# ── Optional: richer perturbations ────────────────────────────
+# Enables synonym substitution and spelling-based token replacement.
+# Without these the experiment still runs using whitespace, case-flip,
+# and character-swap perturbations (no nlpaug dependency).
+# nlpaug>=1.1.11
+
+# ── Optional: code similarity metric ──────────────────────────
+# Only needed when similarity_metric: "codebleu" in config.
+# codebleu>=0.6.0

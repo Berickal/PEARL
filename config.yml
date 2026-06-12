@@ -1,0 +1,142 @@
+# --------------------------------------------------------------
+# Model
+# --------------------------------------------------------------
+model:
+  name_or_path: "EleutherAI/pythia-410m"
+  device: "auto"          # "auto", "cuda", or "cpu"
+  torch_dtype: "bfloat16" # "float32", "float16", or "bfloat16"
+
+# --------------------------------------------------------------
+# Dataset (single-split, backward-compatible mode)
+# --------------------------------------------------------------
+dataset:
+  source: "local"   # "huggingface" or "local"
+
+  local:
+    path: "data/mimir_ngram_13_0.8_members.json"
+    structure: "list"      # "list" or "dict"
+
+  mapping:
+    mapper: "generic"      # squad, mmlu, humaneval, wikitext, latesteval,
+                           # opencodeinstruct, mmlu_cf, or generic
+    # For the generic mapper only:
+    input_key: "input"
+    output_key: "reference"
+    # metadata_keys: ["id"]
+
+# --------------------------------------------------------------
+# D_leak / D_unleak datasets (used by fine-tuning and experiment splits)
+# D_leak = D_squad U D_MMLU U D_Wikitext U D_HumanEval
+# --------------------------------------------------------------
+datasets:
+  leak:
+    - name: "Mimir"
+      source: "local"
+      local:
+        path: "data/mimir_ngram_13_0.8_members.json"
+        structure: "list"
+      mapping:
+        mapper: "generic"
+        input_key: "input"
+        output_key: "reference"
+    - name: "OpenCodeInstruct"
+      source: "huggingface"
+      huggingface:
+        name: "nvidia/OpenCodeInstruct"
+        config: null
+        split: "train"
+        limit: 500
+      mapping:
+        mapper: "generic"
+        input_key: "input"
+        output_key: "output"
+
+  unleak:
+    - name: "Mimir"
+      source: "local"
+      local:
+        path: "data/mimir_ngram_13_0.8_non_members.json"
+        structure: "list"
+      mapping:
+        mapper: "generic"
+        input_key: "input"
+        output_key: "reference"
+    - name: "CodeContest"
+      source: "huggingface"
+      huggingface:
+        name: "teven/code_contests"
+        config: null
+        split: "train"
+        limit: 500
+      mapping:
+        mapper: "generic"
+        input_key: "description"
+        output_key: "solution"
+
+# --------------------------------------------------------------
+# Fine-tuning
+# --------------------------------------------------------------
+fine_tuning:
+  output_dir: "checkpoints"
+
+  # Epoch indices at which a checkpoint is saved.
+  # 0 = base model before any training.
+  epochs: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+  max_length: 512
+  per_device_train_batch_size: 4
+  gradient_accumulation_steps: 1
+  learning_rate: 5.0e-5
+  warmup_steps: 100
+  logging_steps: 10
+
+  # Precision -- pick at most one of bf16 / fp16.
+  # bf16 is recommended on Ampere+ GPUs; fp16 on older hardware.
+  bf16: false
+  fp16: false
+
+  # 4-bit quantization via bitsandbytes (reduces VRAM, requires GPU).
+  use_quantization: false
+
+# --------------------------------------------------------------
+# Experiment: Input vs Output Cosine Similarity
+# --------------------------------------------------------------
+experiment:
+  similarity_ranges:       # each pair [high, low] defines one bucket
+    - [1.0, 0.9]
+    - [0.9, 0.8]
+    - [0.8, 0.7]
+    - [0.7, 0.6]
+    - [0.6, 0.5]
+
+  n_per_range: 5           # modified inputs generated per bucket per sample
+  similarity_metric: "cosine"  # cosine | levenshtein | bleu
+  perturbation_budget: 300     # max generation attempts per bucket
+  seed: 42
+  output_dir: "results/experiment"
+
+# --------------------------------------------------------------
+# Inference
+# --------------------------------------------------------------
+inference:
+  max_new_tokens: 100
+  do_sample: false         # false = greedy (deterministic)
+  batch_size: 8
+
+# --------------------------------------------------------------
+# Baseline sweep (CDD / CoDeC / ACR — scripts/run_baseline_sweep.py)
+# --------------------------------------------------------------
+baseline:
+  # Cap records per JSON file (members and non-members each). null = use full file.
+  max_samples_per_split: null
+  data_members: "data/mimir_ngram_13_0.8_members.json"
+  data_non_members: "data/mimir_ngram_13_0.8_non_members.json"
+
+# --------------------------------------------------------------
+# Membership Inference Attacks
+# --------------------------------------------------------------
+mia:
+  enabled: true
+  min_k: 0.2               # fraction used in Min-K% Prob attack
+
+# HuggingFace token (optional -- set via HUGGINGFACE_API_KEY env var)
