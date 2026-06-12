@@ -354,7 +354,6 @@ non_members/              # Same structure
 | `A_q10` / `A_q25` | 10th / 25th percentile | Best AUC on code |
 | `A_neg_var` | Negative variance of output similarity | Captures consistency signal; direction reverses at scale |
 
-**PSH direction note**: on text tasks `A_mean` / `A_min` / `A_q*` use *higher = member* (inverted PSH); on code tasks the direction is *lower = member* (classic PSH). `A_neg_var` direction also reverses above ~1B parameters.
 
 ---
 
@@ -384,29 +383,10 @@ With `nlpaug`: synonym substitution and spelling-based token replacement for low
 
 ---
 
-## Paper
-
-The LaTeX paper is in `paper/`. The results section covers eight research questions:
-
-| RQ | Topic | Key finding |
-|----|-------|-------------|
-| RQ1 | Detection quality | PEARL (0.777) > MIA (0.687) at 1.4B; n-gram best with training data (0.970) |
-| RQ2 | Aggregation operator | `A_mean` best default; `A_neg_var` reverses direction above 1B |
-| RQ3 | Neighborhood size & threshold | τ ≥ 0.90, K = 5 saturates signal; AUC 0.761 → 0.836 |
-| RQ4 | Transformation efficiency | Surface ops (0.831) >> advanced ops (0.615); bitflip 18% coverage |
-| RQ5 | Repeated exposure | Monotonic growth at 1.4B; no dip unlike 410M |
-| RQ6 | Model size scaling | PEARL scales: 0.560 → 0.805; MIA flat at ~0.67 |
-| RQ7 | PEARL ∩ MIA overlap | Jaccard ~0.46-0.48; 185 PEARL-exclusive, 202 MIA-exclusive |
-| RQ8 | Code domain | Classic PSH on code; best AUC 0.914 (`A_min`, 1.4B epoch 10) |
-
-Compile with: `cd paper && pdflatex main.tex`
-
----
-
 ## References
 
 - Shi et al. (2024). *Detecting Pretraining Data from Large Language Models*. [arXiv:2310.16789](https://arxiv.org/abs/2310.16789) — Min-K% Prob
 - Mattern et al. (2023). *Membership Inference Attacks against Language Models via Neighbourhood Comparison*. [arXiv:2305.18462](https://arxiv.org/abs/2305.18462) — Neighbourhood Attack
-- Dong et al. (2024). *Generalization or Memorization?* — CDD
+- Dong et al. (2024). *Generalization or Memorization: Data Contamination and Trustworthy Evaluation for Large Language Models* — CDD
 - Schwarzschild et al. (2024). *Rethinking LLM Memorization through the Lens of Adversarial Compression*. [arXiv:2404.15146](https://arxiv.org/abs/2404.15146) — ACR
 - Carlini et al. (2021). *Extracting Training Data from Large Language Models* — Loss MIA, n-gram overlap
