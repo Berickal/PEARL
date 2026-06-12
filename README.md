@@ -352,7 +352,7 @@ non_members/              # Same structure
 | `A_median` | Median output similarity | Robust to outliers; highest \|γ\| |
 | `A_min` | Minimum output similarity | High precision; best on code |
 | `A_q10` / `A_q25` | 10th / 25th percentile | Best AUC on code |
-| `A_neg_var` | Negative variance of output similarity | Captures consistency signal; direction reverses at scale |
+| `A_neg_var` | Negative variance of output similarity | Captures consistency signal |
 
 
 ---

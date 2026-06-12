@@ -15,8 +15,7 @@ For each epoch checkpoint (run_0 … run_10), computes:
     - μ(S_E)   : mean IPA score on members
     - μ(S_G)   : mean IPA score on non-members
     - γ = μ(S_G) − μ(S_E)   : memorization gap (paper Def. 2)
-    - AUC  : ROC-AUC treating members as positives (memorized class);
-             score = −S(x) so that lower IPA score → higher memorization signal
+    - AUC  : ROC-AUC
 
   MIA baselines (per-sample scores from mia_summary.csv):
     - mia_loss         : lower → more memorized  → negate for AUC
@@ -103,11 +102,6 @@ def compute_ipa_scores(records: list, agg_fn) -> dict:
 
 def auc_members_vs_nonmembers(scores_E: list, scores_G: list,
                                higher_is_memorized: bool = False) -> float:
-    """
-    Binary ROC-AUC: members (E) = class 1, non-members (G) = class 0.
-    If higher_is_memorized=True  → use scores as-is.
-    If higher_is_memorized=False → negate (lower IPA score = more memorized).
-    """
     y_true  = [1] * len(scores_E) + [0] * len(scores_G)
     raw     = scores_E + scores_G
     y_score = raw if higher_is_memorized else [-s for s in raw]

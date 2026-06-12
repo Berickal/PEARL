@@ -1,17 +1,12 @@
 """
 IPA / PEARL analysis over experiment results.
 
-Implements the calibration and detection framework from
-``paper/sections/problem_formulation.tex``:
 
   - Neighborhood score  S(x) = A({output_similarity over N(x)})
   - Memorization gap    γ = μ(S_G) − μ(S_E)
   - Z-score             M_score(u) = (μ(S_G) − S(u)) / σ(S_G)
   - IPA decision rule   flag if S(u) < μ(S_G) − τ·γ  (τ configurable)
 
-Also reports detection counts at the Youden-optimal threshold (as in the
-paper results tables), AUC per aggregation operator, and optional overlap
-with MIA / CDD when those files exist under ``results/``.
 
 Outputs (default: ``evaluation/reports/``)::
 
@@ -21,7 +16,7 @@ Outputs (default: ``evaluation/reports/``)::
     SUMMARY.md                — human-readable report
     plots/*.png               — curves, comparisons, Pythia-410M score boxplots
 
-Usage (from ``src_v3/``)::
+Usage (from ``pearl/``)::
 
     python -m evaluation.ipa_analysis
     python -m evaluation.ipa_analysis --models pythia_410m --epoch 10
@@ -230,7 +225,6 @@ def align_scores(
 # ── IPA metrics ───────────────────────────────────────────────────────────────
 
 def memorization_score_z(s_u: float, mu_G: float, sigma_G: float) -> float:
-    """M_score(u) = (μ(S_G) − S(u)) / σ(S_G)  (paper Eq. before Hypothesis)."""
     if sigma_G <= 1e-12:
         return 0.0
     return (mu_G - s_u) / sigma_G
@@ -331,12 +325,6 @@ def ipa_rule_flags(
     tau: float,
     members_higher_S: bool,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    IPA decision rule (paper Alg. 1), both orientations.
-
-    Classic (members more brittle):  S(u) < μ(S_G) − τ·γ
-    Empirical PSH (members stable):  S(u) > μ(S_G) − τ·γ
-    """
     cutoff = mu_G - tau * gamma
     if members_higher_S:
         return s_E > cutoff, s_G > cutoff
@@ -361,7 +349,7 @@ def analyse_ipa_run(
     s_E, s_G, _, _ = align_scores(scores_E, scores_G)
     mu_E, mu_G = float(np.mean(s_E)), float(np.mean(s_G))
     sigma_E, sigma_G = float(np.std(s_E)), float(np.std(s_G))
-    gamma = mu_G - mu_E  # paper Def.: positive ⇒ members more brittle (lower S)
+    gamma = mu_G - mu_E 
     memb_hi = resolve_orientation(s_E, s_G, default_lower_S)
 
     y_true = [1] * len(s_E) + [0] * len(s_G)
@@ -2011,7 +1999,7 @@ def run_analysis(
         plot_model_size_scaling_evolution(df_ipa, out_dir, plot_dir)
 
     if not df_overlap.empty:
-        paper_assets = _EVAL_DIR.parent / "paper" / "_assets"
+        paper_assets = "reports" / "_assets"
         venn_epochs = sorted(df_overlap["epoch"].unique())
         key_epochs = [e for e in (1, 10) if e in venn_epochs]
         if not key_epochs:
